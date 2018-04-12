@@ -87,3 +87,7 @@ local.properties
 target/
 
 /bin
+
+### exclude out DIR by intelliJ and data DIR from hibernate
+data/
+out/
