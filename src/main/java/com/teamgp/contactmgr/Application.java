@@ -10,6 +10,7 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import org.hibernate.service.ServiceRegistry;
 
+import javax.xml.bind.SchemaOutputResolver;
 import java.util.List;
 
 public class Application {
@@ -28,15 +29,65 @@ public class Application {
                 .withPhone(773464347L)
                 .build();
 
-        save(contact);
+        int id = save(contact);
 
-        //display a list of contacts
+        //display a list of contacts before the update
         for(Contact c: fetchAllContacts()){
             System.out.println(c);
         }
 
-        //display a list of contact using Java Stream
+        //display a list of contact using Java Stream before the update
+        System.out.printf("%n%nBefore the update%n%n");
         fetchAllContacts().stream().forEach(System.out::println);
+
+        //get the persisted contact
+        Contact c = findContactById(id);
+
+        //update the contact
+        c.setFirstName("Paolo");
+        c.setLastName("Escobar");
+        c.setEmail("kingpin@medellin.com");
+        c.setPhone(23423984);
+
+        //persist the changes
+        System.out.printf("%n%nUpdating...%n%n");
+        update(c);
+        System.out.printf("%n%nUpdate complete.%n%n");
+
+        //display a list of contact using Java Stream before the update
+        System.out.printf("%n%nAfter the update%n%n");
+        fetchAllContacts().stream().forEach(System.out::println);
+    }
+
+    private static Contact findContactById(int id){
+        //open a session
+        Session session = sessionFactory.openSession();
+
+        //retrieve the persistent object or null if it is not found
+        Contact contact = session.get(Contact.class, id);
+
+        //close the session
+        session.close();
+
+        //return Contact object
+        return contact;
+    }
+
+    private static void update(Contact contact){
+        //open a session
+        Session session = sessionFactory.openSession();
+
+        //begin a transaction
+        session.beginTransaction();
+
+        //use the session to update the contact
+        session.update(contact);
+
+        //commit the transaction
+        session.getTransaction().commit();
+
+        //close the session
+        session.close();
     }
 
     @SuppressWarnings("unchecked")
@@ -56,7 +107,7 @@ public class Application {
         return contacts;
     }
 
-    private static void save(Contact contact){
+    private static int save(Contact contact){
         //open session
         Session session = sessionFactory.openSession();
 
@@ -64,12 +115,14 @@ public class Application {
         session.beginTransaction();
 
         //use the session to save the contact
-        session.save(contact);
+        int id = (int)session.save(contact);
 
         //commit the transaction
         session.getTransaction().commit();
 
         //close the session
         session.close();
+
+        return id;
     }
 }
