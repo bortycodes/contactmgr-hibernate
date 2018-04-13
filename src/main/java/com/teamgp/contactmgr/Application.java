@@ -6,6 +6,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.jaxb.SourceType;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
 import org.hibernate.service.ServiceRegistry;
@@ -32,9 +33,9 @@ public class Application {
         int id = save(contact);
 
         //display a list of contacts before the update
-        for(Contact c: fetchAllContacts()){
+        /*for(Contact c: fetchAllContacts()){
             System.out.println(c);
-        }
+        }*/
 
         //display a list of contact using Java Stream before the update
         System.out.printf("%n%nBefore the update%n%n");
@@ -44,19 +45,45 @@ public class Application {
         Contact c = findContactById(id);
 
         //update the contact
-        c.setFirstName("Paolo");
-        c.setLastName("Escobar");
-        c.setEmail("kingpin@medellin.com");
-        c.setPhone(23423984);
+        c.setFirstName("rodora");
+        c.setLastName("X");
+        c.setEmail("rodorax@gma.com");
+        c.setPhone(442568889);
 
         //persist the changes
         System.out.printf("%n%nUpdating...%n%n");
         update(c);
         System.out.printf("%n%nUpdate complete.%n%n");
 
+        //display a list of contact using Java Stream after the update
+        System.out.printf("%n%nAfter the update%n%n");
+        fetchAllContacts().stream().forEach(System.out::println);
+
+        //delete the contact
+        System.out.printf("%n%nDeleting contact...%n%n");
+        delete(c);
+        System.out.printf("%n%nContact Deleted!%n%n");
+
         //display a list of contact using Java Stream before the update
         System.out.printf("%n%nAfter the update%n%n");
         fetchAllContacts().stream().forEach(System.out::println);
+    }
+
+    private static void delete(Contact contact){
+        //open session
+        Session session = sessionFactory.openSession();
+
+        //begin the transaction
+        session.beginTransaction();
+
+        //use session to delete the contact
+        session.delete(contact);
+
+        //commit the transaction
+        session.getTransaction().commit();
+
+        //close the session
+        session.close();
     }
 
     private static Contact findContactById(int id){
